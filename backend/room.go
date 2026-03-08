@@ -19,7 +19,6 @@ func (r *Room) run() {
 			}
 		
 		case message := <-r.broadcast:
-			//(?)
 			for client := range r.clients {
 				select {
 				case client.send <- message:
