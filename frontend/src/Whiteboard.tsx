@@ -34,11 +34,13 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [myInput, setMyInput] = useState("");
 
+  const [isJoined, setIsJoined] = useState(false); //入室したかどうか
+  const [inputName, setInputName] = useState(""); //入力中
+  const [myName, setMyName] = useState(""); //確定
+
   //useRefは再レンダリングに影響を与えないデータを保持するために使う
-  const myName = useRef(`User_${Math.floor(Math.random() * 1000)}`).current;
   const ws = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
   const editorRef = useRef<any>(null);
 
   useEffect(() => {
@@ -46,6 +48,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
   }, [blocks, drafts]);
 
   useEffect(() => {
+    if (!isJoined) return;
     ws.current = new WebSocket(`ws://localhost:8080/ws/${roomId}`);
 
     //sendでwebsocketで繋がっているclientに対して命令(type)を送るが、その時の処理
@@ -93,7 +96,32 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
     return () => {
       if (ws.current) ws.current.close();
     };
-  }, [roomId, myName]);
+  }, [roomId, myName, isJoined]);
+
+  if (!isJoined) {
+    return (
+      <div>
+        <div>
+          <h2>名前を入力して入室</h2>
+          <p>Room ID: {roomId}</p>
+          <input
+            type="text"
+            value={inputName}
+            onChange={(e) => setInputName(e.target.value)}
+            placeholder="未入力の場合は guest"
+          />
+          <button
+            onClick={() => {
+              setMyName(inputName.trim() || "guest");
+              setIsJoined(true);
+            }}
+          >
+            入室する
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   //メッセージ送信処理
   const handleEditorDidMount = (editor: any, monaco: any) => {
