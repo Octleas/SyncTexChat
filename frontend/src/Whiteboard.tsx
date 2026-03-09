@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
 import katex from "katex";
 import "katex/dist/katex.min.css";
 import Editor from "@monaco-editor/react";
@@ -25,7 +26,10 @@ interface Block {
   createdAt: number;
 }
 
-const Whiteboard: React.FC<WhiteboardProps> = ({ roomId = "roomA" }) => {
+const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
+  const params = useParams<{ id: string }>();
+  const roomId = params.id ?? propRoomId;
+
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [myInput, setMyInput] = useState("");
