@@ -1,2 +1,3 @@
-# WhiTex-Board
-リアルタイムでTexを打ち合える数式議論ホワイトボード
+# SyncTexChat
+気軽にリアルタイムでTexを打ち合える数式議論Webサービス
+
