@@ -1,10 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import Whiteboard from "./Whiteboard.js";
+
+import App from "./App.js";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Whiteboard />
+    <App />
   </StrictMode>
 );
