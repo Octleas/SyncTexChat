@@ -32,7 +32,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
 
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
-  const [myInput, setMyInput] = useState("");
 
   const [isJoined, setIsJoined] = useState(false); //入室したかどうか
   const [inputName, setInputName] = useState(""); //入力中
@@ -142,7 +141,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
 
       setBlocks((prev) => [...prev, newBlock as Block]);
 
-      setMyInput(""); //myinputの中身にtext入れる→useStateで更新
       editor.setValue("");
 
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
@@ -161,7 +159,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
   //同期（他のメンバーに打ってる内容をリアルタイムで送信）
   const handleEditorChange = (value: string | undefined) => {
     const text = value || ""; //valueに値入ってたらそのまま代入、undefinedなら虚無を代入
-    setMyInput(text);
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       const msg: WsMessage = {
         type: "draft_update",
@@ -174,7 +171,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
 
   //引用処理
   const handleDoubleClick = (content: string) => {
-    setMyInput(content);
     editorRef.current?.setValue(content);
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(
