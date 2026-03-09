@@ -175,6 +175,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
   //引用処理
   const handleDoubleClick = (content: string) => {
     setMyInput(content);
+    editorRef.current?.setValue(content);
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(
         JSON.stringify({ type: "draft_update", content, author: myName })
@@ -305,7 +306,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
           <Editor
             height="100%"
             defaultLanguage="latex"
-            value={myInput}
             onChange={handleEditorChange}
             onMount={handleEditorDidMount}
             options={{
