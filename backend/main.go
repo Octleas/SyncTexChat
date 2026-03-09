@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gorilla/websocket"
@@ -76,8 +77,10 @@ func main() {
 		go client.readPump()
 	})
 
-	fmt.Println("Server Ready: http://localhost:8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal("Not Server Ready: ", err)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
+	fmt.Println("Server starting on port: " + port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

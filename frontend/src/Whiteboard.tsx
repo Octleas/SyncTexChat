@@ -42,7 +42,9 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId = "roomA" }) => {
   }, [blocks, drafts]);
 
   useEffect(() => {
-    ws.current = new WebSocket(`ws://localhost:8080/ws/${roomId}`);
+    const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsHost = import.meta.env.VITE_WS_URL || "localhost:8080";
+    ws.current = new WebSocket(`${wsProtocol}//${wsHost}/ws/${roomId}`);
 
     //sendでwebsocketで繋がっているclientに対して命令(type)を送るが、その時の処理
     ws.current.onmessage = (event: MessageEvent) => {
