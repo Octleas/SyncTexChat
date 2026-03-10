@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@yamada-ui/react";
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export const Home: React.FC = () => {
   return (
     <div style={{ padding: "20px" }}>
       <p>This is Homepage.</p>
-      <button onClick={handleCreateRoom}>ルームを作成</button>
+      <Button onClick={handleCreateRoom}>ルームを作成</Button>
     </div>
   );
 };

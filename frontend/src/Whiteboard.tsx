@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import katex from "katex";
 import "katex/dist/katex.min.css";
 import Editor from "@monaco-editor/react";
+import { VStack, Input, Button, Heading, Text, Field } from "@yamada-ui/react";
+import { Form } from "./form";
 
 interface WhiteboardProps {
   roomId?: string;
@@ -100,26 +102,32 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
 
   if (!isJoined) {
     return (
-      <div>
-        <div>
-          <h2>名前を入力して入室</h2>
-          <p>Room ID: {roomId}</p>
-          <input
-            type="text"
-            value={inputName}
+      <VStack as="form" gap="lg" maxW="md" mx="auto" p="md">
+        <VStack gap="xs" alignItems="center">
+          <Heading as="h2" size="xl">
+            名前を入力して入室
+          </Heading>
+          <Text color="fg.muted">Room ID: {roomId}</Text>
+        </VStack>
+
+        <Field.Root label="名前を入力してください。">
+          <Input
             onChange={(e) => setInputName(e.target.value)}
+            autoComplete="username"
             placeholder="未入力の場合は guest"
           />
-          <button
-            onClick={() => {
-              setMyName(inputName.trim() || "guest");
-              setIsJoined(true);
-            }}
-          >
-            入室する
-          </button>
-        </div>
-      </div>
+        </Field.Root>
+
+        <Button
+          colorScheme="primary"
+          onClick={() => {
+            setMyName(inputName.trim() || "guest");
+            setIsJoined(true);
+          }}
+        >
+          入室する
+        </Button>
+      </VStack>
     );
   }
 
