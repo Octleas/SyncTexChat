@@ -3,6 +3,17 @@ import { useParams } from "react-router-dom";
 import katex from "katex";
 import "katex/dist/katex.min.css";
 import Editor from "@monaco-editor/react";
+import {
+  Input,
+  Button,
+  Heading,
+  Text,
+  Field,
+  Box,
+  Flex,
+  HStack,
+  VStack,
+} from "@yamada-ui/react";
 
 interface WhiteboardProps {
   roomId?: string;
@@ -100,26 +111,39 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
 
   if (!isJoined) {
     return (
-      <div>
-        <div>
-          <h2>名前を入力して入室</h2>
-          <p>Room ID: {roomId}</p>
-          <input
-            type="text"
-            value={inputName}
-            onChange={(e) => setInputName(e.target.value)}
-            placeholder="未入力の場合は guest"
-          />
-          <button
+      <VStack
+        gap="lg"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <VStack as="form" gap="lg" maxW="md" mx="auto" p="md">
+          <VStack gap="xs" alignItems="center">
+            <Heading as="h2" size="xl">
+              名前を入力して入室
+            </Heading>
+            <Text color="fg.muted">Room ID: {roomId}</Text>
+          </VStack>
+
+          <Field.Root label="名前を入力してください。">
+            <Input
+              onChange={(e) => setInputName(e.target.value)}
+              autoComplete="username"
+              placeholder="未入力の場合は guest"
+            />
+          </Field.Root>
+
+          <Button
+            colorScheme="primary"
             onClick={() => {
               setMyName(inputName.trim() || "guest");
               setIsJoined(true);
             }}
           >
             入室する
-          </button>
-        </div>
-      </div>
+          </Button>
+        </VStack>
+      </VStack>
     );
   }
 
@@ -188,117 +212,108 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
     }
   };
 
-  //フロント部分
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        width: "100%",
-        backgroundColor: "#f5f5f5",
-      }}
-    >
-      <div
-        style={{
-          padding: "10px 20px",
-          backgroundColor: "#fff",
-          borderBottom: "1px solid #ccc",
-        }}
+    <Flex direction="column" h="100vh" w="full" bg="blackAlpha.50">
+      {/* ヘッダーエリア */}
+      <HStack
+        px="md"
+        py="sm"
+        bg="bg"
+        borderBottomWidth="1px"
+        justifyContent="space-between"
       >
-        <h2>
-          Room: {roomId}{" "}
-          <span style={{ fontSize: "14px", color: "#666" }}>
+        <HStack alignItems="baseline">
+          <Heading as="h2" size="md">
+            Room: {roomId}
+          </Heading>
+          <Text fontSize="sm" color="fg.muted">
             (You: {myName})
-            <button onClick={() => handleDeleteBlocks()}>全削除</button>
-          </span>
-        </h2>
-      </div>
-
-      <div style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
-        {blocks.map((b) => (
-          <div
-            key={b.id}
-            onDoubleClick={() => handleDoubleClick(b.content)}
-            style={{
-              marginBottom: "20px",
-              padding: "15px",
-              backgroundColor: "#fff",
-              borderRadius: "8px",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-              cursor: "pointer",
-            }}
-            title="ダブルクリックで引用"
-          >
-            <div
-              style={{ fontSize: "12px", color: "#888", marginBottom: "8px" }}
-            >
-              {b.author}
-            </div>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: katex.renderToString(b.content.replace(/\n/g, "\\\\"), {
-                  displayMode: true,
-                  throwOnError: false,
-                }),
-              }}
-            />
-          </div>
-        ))}
-
-        {Object.entries(drafts).map(([author, content]) => (
-          <div
-            key={author}
-            style={{
-              marginBottom: "20px",
-              padding: "15px",
-              backgroundColor: "#e9f5ff",
-              borderLeft: "4px solid #007bff",
-              borderRadius: "4px",
-              opacity: 0.8,
-            }}
-          >
-            <div
-              style={{
-                fontSize: "12px",
-                color: "#007bff",
-                marginBottom: "8px",
-              }}
-            >
-              {author} が入力中...
-            </div>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: katex.renderToString(
-                  (content || "\\text{typing...}").replace(/\n/g, "\\\\"),
-                  { displayMode: true, throwOnError: false }
-                ),
-              }}
-            />
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-
-      <div
-        style={{
-          padding: "20px",
-          backgroundColor: "#fff",
-          borderTop: "1px solid #ccc",
-          height: "150px",
-        }}
-      >
-        <div style={{ marginBottom: "10px", fontSize: "12px", color: "#666" }}>
-          Enter で確定 (Shift + Enter で改行) / 過去の数式をダブルクリックで引用
-        </div>
-        <div
-          style={{
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-            overflow: "hidden",
-            height: "80px",
-          }}
+          </Text>
+        </HStack>
+        <Button
+          colorScheme="danger"
+          size="sm"
+          variant="outline"
+          onClick={() => handleDeleteBlocks()}
         >
+          全削除
+        </Button>
+      </HStack>
+
+      {/* チャット（数式）表示エリア */}
+      <Box flex={1} overflowY="auto" p="md">
+        <VStack gap="md">
+          {/* 確定済みのブロック */}
+          {blocks.map((b) => (
+            <Box
+              key={b.id}
+              onDoubleClick={() => handleDoubleClick(b.content)}
+              p="md"
+              bg="bg"
+              rounded="md"
+              shadow="sm"
+              cursor="pointer"
+              transitionProperty="all"
+              _hover={{ shadow: "md", transform: "translateY(-2px)" }} // ホバー時のちょっとしたアニメーション
+              title="ダブルクリックで引用"
+            >
+              <Text fontSize="xs" color="fg.muted" mb="sm">
+                {b.author}
+              </Text>
+              <Box
+                dangerouslySetInnerHTML={{
+                  __html: katex.renderToString(
+                    b.content.replace(/\n/g, "\\\\"),
+                    {
+                      displayMode: true,
+                      throwOnError: false,
+                    }
+                  ),
+                }}
+              />
+            </Box>
+          ))}
+
+          {/* 入力中（ドラフト）のブロック */}
+          {Object.entries(drafts).map(([author, content]) => (
+            <Box
+              key={author}
+              p="md"
+              bg="blue.50"
+              borderLeftWidth="4px"
+              borderColor="blue.500"
+              rounded="md"
+              opacity={0.8}
+              _dark={{ bg: "blue.900", borderColor: "blue.300" }} // ダークモード対応のおまけ
+            >
+              <Text
+                fontSize="xs"
+                color="blue.500"
+                mb="sm"
+                _dark={{ color: "blue.300" }}
+              >
+                {author} が入力中...
+              </Text>
+              <Box
+                dangerouslySetInnerHTML={{
+                  __html: katex.renderToString(
+                    (content || "\\text{typing...}").replace(/\n/g, "\\\\"),
+                    { displayMode: true, throwOnError: false }
+                  ),
+                }}
+              />
+            </Box>
+          ))}
+          <Box ref={messagesEndRef} />
+        </VStack>
+      </Box>
+
+      {/* 入力エリア */}
+      <Box p="md" bg="bg" borderTopWidth="1px" h="150px">
+        <Text mb="sm" fontSize="xs" color="fg.muted">
+          Enter で確定 (Shift + Enter で改行) / 過去の数式をダブルクリックで引用
+        </Text>
+        <Box borderWidth="1px" rounded="md" overflow="hidden" h="80px">
           <Editor
             height="100%"
             defaultLanguage="latex"
@@ -313,9 +328,9 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
               fontSize: 16,
             }}
           />
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Flex>
   );
 };
 
