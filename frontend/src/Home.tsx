@@ -10,11 +10,6 @@ export const Home: React.FC = () => {
       .toString()
       .padStart(4, "0");
     navigate(`/room/${id}`);
-    alert(
-      `Roomを作成しました.
-一緒に参加したい人にURL,またはIDを共有してください。
-${window.location.origin}/room/${id}`
-    );
   };
 
   return (

@@ -55,7 +55,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [blocks, drafts]);
+  }, [blocks]);
 
   useEffect(() => {
     const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -122,7 +122,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
             <Heading as="h2" size="xl">
               名前を入力して入室
             </Heading>
-            <Text color="fg.muted">Room ID: {roomId}</Text>
+            <Text color="fg.muted">友達にRoomIDを共有: {roomId}</Text>
           </VStack>
 
           <Field.Root label="名前を入力してください。">
@@ -211,10 +211,9 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
       ws.current.send(JSON.stringify({ type: "clear_all" }));
     }
   };
-
+  //UI部分
   return (
-    <Flex direction="column" h="100vh" w="full" bg="blackAlpha.50">
-      {/* ヘッダーエリア */}
+    <Flex direction="column" h="100dvh" w="full" bg="blackAlpha.50">
       <HStack
         px="md"
         py="sm"
@@ -240,10 +239,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
         </Button>
       </HStack>
 
-      {/* チャット（数式）表示エリア */}
       <Box flex={1} overflowY="auto" p="md">
         <VStack gap="md">
-          {/* 確定済みのブロック */}
           {blocks.map((b) => (
             <Box
               key={b.id}
@@ -274,7 +271,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
             </Box>
           ))}
 
-          {/* 入力中（ドラフト）のブロック */}
           {Object.entries(drafts).map(([author, content]) => (
             <Box
               key={author}
@@ -284,6 +280,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
               borderColor="blue.500"
               rounded="md"
               opacity={0.8}
+              minH="80px"
+              transition="height 0.2s ease-out"
               _dark={{ bg: "blue.900", borderColor: "blue.300" }} // ダークモード対応のおまけ
             >
               <Text
@@ -308,7 +306,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
         </VStack>
       </Box>
 
-      {/* 入力エリア */}
       <Box p="md" bg="bg" borderTopWidth="1px" h="150px">
         <Text mb="sm" fontSize="xs" color="fg.muted">
           Enter で確定 (Shift + Enter で改行) / 過去の数式をダブルクリックで引用
