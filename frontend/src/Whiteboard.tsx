@@ -13,6 +13,7 @@ import {
   Flex,
   HStack,
   VStack,
+  useNotice,
 } from "@yamada-ui/react";
 
 interface WhiteboardProps {
@@ -28,7 +29,8 @@ type WsMessage =
       author: string;
       createdAt: number;
     }
-  | { type: "clear_all" };
+  | { type: "clear_all" }
+  | { type: "notification"; content: string };
 
 interface Block {
   id: string;
@@ -48,6 +50,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
   const [inputName, setInputName] = useState(""); //入力中
   const [myName, setMyName] = useState(""); //確定
 
+  const notice = useNotice();
+
   //useRefは再レンダリングに影響を与えないデータを保持するために使う
   const ws = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -62,8 +66,18 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
     const wsHost = import.meta.env.VITE_WS_URL || "localhost:8080";
     ws.current = new WebSocket(`${wsProtocol}//${wsHost}/ws/${roomId}`);
 
+    ws.current.onopen = () => {
+      console.log("WebSocket onopen fired! isJoined=", isJoined, "myName=", myName);
+      if (isJoined) {
+        ws.current?.send(
+          JSON.stringify({ type: "notification", content: `${myName} が入室しました` })
+        );
+      }
+    };
+
     //sendでwebsocketで繋がっているclientに対して命令(type)を送るが、その時の処理
     ws.current.onmessage = (event: MessageEvent) => {
+      console.log("Received via WS:", event.data);
       try {
         const data = JSON.parse(event.data) as WsMessage;
 
@@ -98,9 +112,16 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ roomId: propRoomId }) => {
           });
         } else if (data.type === "clear_all") {
           setBlocks([]);
+        } else if (data.type === "notification") {
+          notice({
+            title: data.content,
+            status: "info",
+            duration: 3000,
+            closable: true,
+          });
         }
       } catch (e) {
-        console.error("無効なJSONを受信:", e);
+        console.error("エラーが発生しました:", e);
       }
     };
 

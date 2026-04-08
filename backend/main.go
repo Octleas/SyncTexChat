@@ -35,16 +35,13 @@ func main() {
 			return
 		}
 
-		room := hub.GetOrCreateRoom(roomId)
-
 		client := &Client{
 			hub: hub,
-			room: room,
 			conn: conn,
 			send: make(chan []byte, 256),
 		}
 
-		client.room.register <- client
+		hub.JoinRoom(roomId, client)
 
 		go client.writePump()
 		go client.readPump()
