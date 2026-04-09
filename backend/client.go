@@ -8,7 +8,7 @@ import (
 
 //readPump: ブラウザから送られてきたデータを受信し、Roomへ流す
 func (c *Client) readPump() {
-	defer func() {
+	defer func() { //クライアントが切断されたら、Roomから外し、コネクションも閉じる。
 		c.room.unregister <- c
 		c.conn.Close()
 	}()

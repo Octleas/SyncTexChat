@@ -12,6 +12,9 @@ type Hub struct {
 }
 
 type Room struct {
+	hub *Hub
+	id string
+	pending int
 	clients map[*Client]bool
 	broadcast chan []byte
 	register chan *Client
@@ -31,21 +34,25 @@ func NewHub() *Hub {
 	}
 }
 
-func (h *Hub) GetOrCreateRoom(roomId string) *Room {
+func (h *Hub) JoinRoom(roomId string, client *Client) {
 	h.mu.Lock()
-	defer h.mu.Unlock()
-	if room, ok := h.rooms[roomId]; ok {
-		return room
+	room, ok := h.rooms[roomId]
+	if !ok {
+		room = &Room{
+			hub: h,
+			id: roomId,
+			pending: 0,
+			clients: make(map[*Client]bool),
+			broadcast: make(chan []byte),
+			register: make(chan *Client),
+			unregister: make(chan *Client),
+		}
+		h.rooms[roomId] = room
+		go room.run() // 新しいroomができた時、そのroom専用のgoroutineを起動
 	}
+	room.pending++
+	h.mu.Unlock()
 
-	room := &Room {
-		clients: make(map[*Client]bool),
-		broadcast: make(chan []byte),
-		register: make(chan *Client),
-		unregister: make(chan *Client),
-	}
-
-	h.rooms[roomId] = room
-	go room.run() // 新しいroomができた時、そのroom専用のgoroutineを起動
-	return room
+	client.room = room
+	room.register <- client
 }

@@ -18,33 +18,6 @@ var upgrader = websocket.Upgrader{
 //websocket.Upgrader: HTTPプロトコル→WebSocketプロトコルへ
 //CheckOrigin どのドメインからの接続を許可するか、return true につき何きてもtrueで返してる
 
-func handleConnections(w http.ResponseWriter, r *http.Request) {
-	ws, err := upgrader.Upgrade(w, r, nil)
-	//wとrを統合しているイメージ
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer ws.Close()
-	//handleConnectionsが終わる時にwsを閉じる
-	fmt.Println("Connected")
-	for {
-		messageType, p, err := ws.ReadMessage()
-		//wsを用いてデータを受信
-		if err != nil {
-			fmt.Println("Disconnected: ", err)
-			break
-		}
-		fmt.Printf("Received: %s\n", p)
-
-		err = ws.WriteMessage(messageType, p)
-		//wsを用いてデータを書きこみ
-		if err != nil {
-			fmt.Println("Sending Error:", err)
-			break
-		}
-	}
-}
-
 func main() {
 	hub := NewHub()
 
@@ -62,16 +35,13 @@ func main() {
 			return
 		}
 
-		room := hub.GetOrCreateRoom(roomId)
-
 		client := &Client{
 			hub: hub,
-			room: room,
 			conn: conn,
 			send: make(chan []byte, 256),
 		}
 
-		client.room.register <- client
+		hub.JoinRoom(roomId, client)
 
 		go client.writePump()
 		go client.readPump()
