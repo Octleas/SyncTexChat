@@ -31,6 +31,7 @@ export const Home: React.FC = () => {
           <GithubIcon />
         </Link>
       </Flex>
+
       <VStack
         flex="1"
         gap="md"
@@ -41,6 +42,7 @@ export const Home: React.FC = () => {
         <Heading as="h1" size="2xl">
           SyncTexChatへようこそ
         </Heading>
+
         <Text color="fg.muted">
           ルームIDを共有して, Texが使える議論をしよう.
         </Text>
@@ -79,6 +81,15 @@ export const Home: React.FC = () => {
             }}
           />
         </HStack>
+      </VStack>
+
+      <VStack gap="1" px="4" pb="8" textAlign="center">
+        <Text fontSize="xs" color="fg.subtle" lineHeight="1.8">
+          ルームは公開チャットです。ルームIDを知っている人は誰でも閲覧・参加できます。
+        </Text>
+        <Text fontSize="xs" color="fg.subtle" lineHeight="1.8">
+          個人情報・秘密情報・非公開の相談内容などは投稿しないでください。
+        </Text>
       </VStack>
     </Flex>
   );
